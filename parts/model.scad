@@ -6,6 +6,7 @@
 // and use 3D printed plastics for all other parts.  This makes it very customisable
 // 
 // Designer: Dave Rowntree (dave@davidrowntree.co.uk)
+// Project home: https://github.com/daverowntree/spray_etcher
 //
 // V0.1: Initial version
 //
@@ -20,8 +21,8 @@
 fine=50;
 
 // Base model
-base_width=90;
-base_depth=60;
+base_width=150;
+base_depth=120;
 base_height=5;
 
 // Tube model
@@ -30,7 +31,7 @@ tube_th = 2.1;  // Wall thickness measured
 tube_len = 50;
 
 // Positioning
-tube_offsetx=25;
+tube_offsetx=40;
 tube_offsety=0;
 tube_posz=-base_height/2;
 tube_clearance=5;
@@ -76,17 +77,33 @@ slot_height=20;
 // B O D Y
 // Top level config;  explore: set to true, to show an exploded, rather than assmebled view
 //
-body(explode=true);
+body(explode=true, platter=true);
 /////////////////////////////////////////////
 
 
-module body(explode=false){
-    //base();
-    translate([-tube_offsetx,tube_offsety,tube_posz]) !spray_tube(explode);
-    translate([-tube_offsetx,tube_offsety,-10]) baffle();
-    //translate([-tube_offsetx,tube_offsety,-5])baffle();
-    //translate([tube_offsetx,tube_offsety,tube_posz]) spray_tube(explode);
-    //translate([tube_offsetx,tube_offsety,-10]) baffle();
+module body(explode=false, platter=false){
+    
+    if (platter){
+        // Assemble on a platter, orientated for printing
+        // They are all currently at different Z heights, but any slicer worth using
+        // will be able to drop them down to z=0 automatically...
+        translate([-tube_od,0,0]) baffle();
+        translate([tube_od,tube_od*0.75,0]) rotate([180,0,0]) cap();
+        translate([tube_od,-tube_od*0.75,0]) impeller();
+        translate([-tube_od*1.5,-tube_od,0]) rotate ([90,0,90]) catcher();
+        translate([-tube_od*1.5,-tube_od-5,0]) rotate ([90,0,90]) catcher();
+        translate([-tube_od*1.5,-tube_od-10,0]) rotate ([90,0,90]) catcher();
+        
+        
+    } else {
+        // Assemble as per application
+        // Set explode=false to show assembled, else true to show exploded assembly view
+        base();
+        translate([-tube_offsetx,tube_offsety,tube_posz]) spray_tube(explode);
+        translate([-tube_offsetx,tube_offsety,explode ? -30 : -5]) baffle();
+        translate([tube_offsetx,tube_offsety,tube_posz]) spray_tube(explode);
+        translate([tube_offsetx,tube_offsety,explode ? -30 : -5]) baffle();
+    }
 }
 
 
