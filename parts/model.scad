@@ -243,7 +243,7 @@ module baffle(){
     }
 
     // base
-    %translate([0,0,-baffle_base_th*0.95]) baffle_base();
+    translate([0,0,-baffle_base_th*0.95]) baffle_base();
 
     }
 
