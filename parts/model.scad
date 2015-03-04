@@ -15,7 +15,8 @@
 // Open Source License:  Creative Commons - Attribution Non-commercial Share Alike (by-nc-sa)
 // Please see http://creativecommons.org/licenses/by-nc-sa/2.5/
 
-
+// Libraries
+use <MCAD/nuts_and_bolts.scad>;
 
 // Globals
 fine=50;
@@ -39,34 +40,35 @@ tube_clearance=5;
 // Impeller
 impeller_h=8;
 impeller_od=tube_od-2*tube_th;
-impeller_ring_th=1.2;
-impeller_lip_hole_d=20;
-impeller_lip_th=1.2;
+impeller_ring_th=2.0;
+impeller_lip_hole_d=25;
+impeller_lip_th=2.0;
 impeller_pivot_h=0.9;
 impeller_pivot_od=2;
 
 // Baffles
 baffle_width=10;
 baffle_depth=5;
-baffle_th=1;
+baffle_th=2;
 //baffle_id=10;
-baffle_base_th=1;
+baffle_base_th=2;
 baffle_web_th=2;
 baffle_clearance=0.2;
 
 // Impeller blades
 blade_width=impeller_od;
 blade_depth=impeller_h*2;
-blade_th=1;
+blade_th=2;
 
 // Catcher model
-catcher_d=2;
-catcher_th=1;
+catcher_d=5;
+catcher_th=2;
 
 // Top Cap
 cap_height=10;
 cap_od=tube_od+tube_th;
 cap_overlap=5;
+nuthole_h=4;
 
 // Drains
 slot_width=5;
@@ -77,7 +79,7 @@ slot_height=20;
 // B O D Y
 // Top level config;  explore: set to true, to show an exploded, rather than assmebled view
 //
-body(explode=true, platter=true);
+body(explode=true, platter=false);
 /////////////////////////////////////////////
 
 
@@ -90,9 +92,9 @@ module body(explode=false, platter=false){
         translate([-tube_od,0,0]) baffle();
         translate([tube_od,tube_od*0.75,0]) rotate([180,0,0]) cap();
         translate([tube_od,-tube_od*0.75,0]) impeller();
-        translate([-tube_od*1.5,-tube_od,0]) rotate ([90,0,90]) catcher();
-        translate([-tube_od*1.5,-tube_od-5,0]) rotate ([90,0,90]) catcher();
         translate([-tube_od*1.5,-tube_od-10,0]) rotate ([90,0,90]) catcher();
+        translate([-tube_od*1.5,-tube_od-20,0]) rotate ([90,0,90]) catcher();
+        translate([-tube_od*1.5,-tube_od-30,0]) rotate ([90,0,90]) catcher();
         
         
     } else {
@@ -159,21 +161,29 @@ module tube(){
 // C a p   (Motor drive + top seal)
 //////////////////////////////////
 module cap(){
-
-    difference(){
-        cylinder(h=cap_height, r=cap_od/2, $fn=fine);
-        translate([0,0,-(cap_height/2)-cap_overlap]) cap_remove_material();
+    
+    union(){
+        difference(){
+            cylinder(h=cap_height, r=cap_od/2, $fn=fine);
+            union(){
+                translate([0,0,-(cap_height/2)-cap_overlap]) cap_remove_material();
+                translate([0,0,cap_height-4.5]) nutHole(6);
+            }    
+        }
+    
+        // Then add a bit of material for the but hole to fit into
+        //translate([0,0,3]) cylinder(r=8, h=nuthole_h, $fn=$fine);
     }
 }
 
 module cap_remove_material(){
-    union(){
+    union(){        
         difference(){
             cylinder(h=cap_height*1.5,r=tube_od/2,$fn=fine);
-            translate([0,0,-5]) cylinder(h=tube_len+10,r=(tube_od-tube_th)/2,$fn=fine);
+            translate([0,0,-5]) cylinder(h=tube_len+10,r=tube_od/2-tube_th,$fn=fine);
         }
 
-        translate([0,0,cap_height*0.25]) cylinder(h=cap_height*1.5, r=(tube_od-tube_th*2)/2, $fn=fine);
+        translate([0,0,cap_height*0.25]) cylinder(h=cap_height*1.5, r=tube_od/2-tube_th*2, $fn=fine);
     }
 }
 
